@@ -1,0 +1,64 @@
+{
+  "docs": [
+    {
+      "id": "6e66c1b2-e0f9-4ded-bacb-2ee2555c71ed",
+      "title": "Getting started",
+      "category": "First section",
+      "description": "Beginner friendly documentation, read our first section ever made",
+      "order": 1,
+      "filename": "be869f1a-bcb9-4fa8-802a-0f56a2862970.md",
+      "originalName": "NOVAJS_GETTING_STARTED.md",
+      "size": 14275,
+      "createdAt": "2026-05-23T12:37:46.275Z",
+      "updatedAt": "2026-05-23T12:37:46.275Z"
+    },
+    {
+      "id": "018ef484-80ae-451b-8415-b8526e93514a",
+      "title": "Core concepts",
+      "category": "Core Concepts",
+      "description": "Explaining and teaching about novajs core concepts, continue learning, \r\nDon't just read instead while reading you're writing and testing if u can make 3d graphics using novajs",
+      "order": 2,
+      "filename": "1f9ab1b3-578f-445a-a727-d7f8edd88ea7.md",
+      "originalName": "01-core-concepts.md",
+      "size": 5997,
+      "createdAt": "2026-05-23T12:54:43.759Z",
+      "updatedAt": "2026-05-23T12:54:43.765Z"
+    },
+    {
+      "id": "307eda67-0a78-4f5b-9501-93619845969e",
+      "title": "API references",
+      "category": "API references",
+      "description": "Complete reference for NovaJS classes and methods.",
+      "order": 2,
+      "filename": "76580e5d-7981-455a-bb68-889361b24b47.md",
+      "originalName": "02-api-reference.md",
+      "size": 5942,
+      "createdAt": "2026-05-23T13:01:18.386Z",
+      "updatedAt": "2026-05-23T13:01:18.389Z"
+    },
+    {
+      "id": "ba57379b-5511-4a78-8e7f-b1a4d3723808",
+      "title": "Examples",
+      "category": "Examples",
+      "description": "Complete examples For novajs projects",
+      "order": 2,
+      "filename": "2ade1f0b-6154-4c5e-9d8e-d658a1f7f187.md",
+      "originalName": "03-examples.md",
+      "size": 6673,
+      "createdAt": "2026-05-23T13:05:22.126Z",
+      "updatedAt": "2026-05-23T13:05:22.127Z"
+    },
+    {
+      "id": "1ba2675d-c7c8-4025-8bd3-0842b8e1f53d",
+      "title": "What's new in 2026",
+      "category": "Advanced Features",
+      "description": "Complete guide of what's new in 2026",
+      "order": 2,
+      "filename": "a48d1174-87ac-402b-964c-7690f3f383e8.md",
+      "originalName": "novajs-v2-readme.md",
+      "size": 18918,
+      "createdAt": "2026-05-25T02:42:59.004Z",
+      "updatedAt": "2026-05-25T02:42:59.005Z"
+    }
+  ]
+}

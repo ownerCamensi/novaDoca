@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaJS — Admin Panel</title>
+  <style>
+    :root {
+      --bg:      #0d0d14;
+      --surface: #111118;
+      --card:    #16161f;
+      --border:  #23233a;
+      --accent:  #a78bfa;
+      --accent2: #7c3aed;
+      --danger:  #f87171;
+      --success: #4ade80;
+      --text:    #e2e2f0;
+      --muted:   #7070a0;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; font-size:15px; }
+
+    /* ── Login page ── */
+    .login-wrap {
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh; padding:20px;
+    }
+    .login-card {
+      background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:48px 40px; width:100%; max-width:400px;
+    }
+    .login-logo { text-align:center; margin-bottom:32px; }
+    .login-logo-mark { font-size:2.5rem; display:block; }
+    .login-logo-name { font-size:1.3rem; font-weight:800; color:var(--accent); letter-spacing:.05em; }
+    .login-logo-sub  { color:var(--muted); font-size:.8rem; margin-top:4px; }
+
+    /* ── Admin nav ── */
+    .admin-nav {
+      background:var(--surface); border-bottom:1px solid var(--border);
+      padding:0 24px; height:56px; display:flex; align-items:center; gap:16px;
+    }
+    .admin-nav-logo { font-weight:800; color:var(--accent); font-size:1rem; letter-spacing:.05em; }
+    .admin-nav-badge { font-size:.7rem; background:#a78bfa20; color:var(--accent); border:1px solid #a78bfa30; padding:2px 8px; border-radius:99px; }
+    .admin-spacer { flex:1; }
+    .admin-user { color:var(--muted); font-size:.85rem; }
+    .admin-nav-link { color:var(--muted); text-decoration:none; font-size:.85rem; transition:color .15s; }
+    .admin-nav-link:hover { color:var(--text); }
+
+    /* ── Dashboard layout ── */
+    .dashboard { max-width:1100px; margin:0 auto; padding:36px 24px; }
+    .dash-grid { display:grid; grid-template-columns:1fr 360px; gap:28px; align-items:start; }
+
+    /* ── Stats bar ── */
+    .stats-row { display:flex; gap:16px; margin-bottom:28px; flex-wrap:wrap; }
+    .stat-card {
+      background:var(--card); border:1px solid var(--border); border-radius:10px;
+      padding:16px 20px; flex:1; min-width:120px;
+    }
+    .stat-val  { font-size:1.8rem; font-weight:800; color:var(--accent); line-height:1; }
+    .stat-label { color:var(--muted); font-size:.78rem; margin-top:4px; text-transform:uppercase; letter-spacing:.05em; }
+
+    /* ── Shared card ── */
+    .card {
+      background:var(--card); border:1px solid var(--border); border-radius:12px;
+      overflow:hidden;
+    }
+    .card-header {
+      padding:18px 24px; border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .card-title { font-weight:700; font-size:1rem; }
+    .card-body  { padding:24px; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom:18px; }
+    label { display:block; font-size:.8rem; color:var(--muted); margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    input[type="text"], input[type="password"], input[type="number"], select, textarea {
+      width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text);
+      padding:10px 14px; border-radius:8px; font-size:.9rem; outline:none;
+      transition:border-color .15s; font-family:inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color:var(--accent); }
+    textarea { resize:vertical; min-height:80px; }
+    select option { background:var(--card); }
+
+    /* ── File drop zone ── */
+    .dropzone {
+      border:2px dashed var(--border); border-radius:10px; padding:32px 20px;
+      text-align:center; cursor:pointer; transition:all .2s; position:relative;
+    }
+    .dropzone:hover, .dropzone.drag-over { border-color:var(--accent); background:#a78bfa08; }
+    .dropzone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+    .dropzone-icon  { font-size:2rem; margin-bottom:10px; }
+    .dropzone-label { color:var(--muted); font-size:.875rem; }
+    .dropzone-label span { color:var(--accent); }
+    .dropzone-file  { color:var(--accent); font-weight:600; font-size:.875rem; margin-top:8px; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding:10px 20px; border-radius:8px; font-size:.875rem; font-weight:600;
+      cursor:pointer; transition:all .15s; border:none; font-family:inherit;
+    }
+    .btn-primary { background:var(--accent2); color:#fff; }
+    .btn-primary:hover { background:#6d28d9; }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+    .btn-danger { background:transparent; border:1px solid #f8717140; color:var(--danger); padding:6px 12px; font-size:.8rem; }
+    .btn-danger:hover { background:#f871711a; }
+    .btn-sm { padding:5px 12px; font-size:.8rem; }
+    .btn-full { width:100%; justify-content:center; display:flex; align-items:center; gap:8px; }
+
+    /* ── Doc list ── */
+    .doc-list { display:flex; flex-direction:column; gap:0; }
+    .doc-item {
+      display:flex; align-items:center; gap:12px; padding:14px 24px;
+      border-bottom:1px solid var(--border); transition:background .1s;
+    }
+    .doc-item:last-child { border-bottom:none; }
+    .doc-item:hover { background:#ffffff04; }
+    .doc-item-info { flex:1; min-width:0; }
+    .doc-item-title { font-weight:600; font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .doc-item-meta  { font-size:.75rem; color:var(--muted); margin-top:2px; }
+    .doc-item-badge {
+      font-size:.7rem; padding:2px 8px; border-radius:99px; flex-shrink:0;
+      background:#a78bfa15; color:var(--accent); border:1px solid #a78bfa25;
+    }
+    .doc-list-empty { padding:40px; text-align:center; color:var(--muted); font-size:.9rem; }
+
+    /* ── Toast ── */
+    .toast-wrap { position:fixed; bottom:24px; right:24px; display:flex; flex-direction:column; gap:8px; z-index:999; }
+    .toast {
+      background:var(--card); border:1px solid var(--border); border-radius:10px;
+      padding:12px 18px; font-size:.875rem; display:flex; align-items:center; gap:10px;
+      animation:slideIn .2s ease; min-width:260px; max-width:360px;
+      box-shadow:0 8px 32px #0008;
+    }
+    .toast.success { border-color:#4ade8040; }
+    .toast.error   { border-color:#f8717140; }
+    @keyframes slideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .toast-icon { font-size:1.1rem; flex-shrink:0; }
+
+    /* ── Confirm modal ── */
+    .modal-overlay {
+      position:fixed; inset:0; background:#000a; display:none;
+      align-items:center; justify-content:center; z-index:200;
+    }
+    .modal-overlay.show { display:flex; }
+    .modal {
+      background:var(--card); border:1px solid var(--border); border-radius:14px;
+      padding:32px; max-width:380px; width:90%; text-align:center;
+    }
+    .modal h3 { margin-bottom:8px; }
+    .modal p  { color:var(--muted); font-size:.9rem; margin-bottom:24px; }
+    .modal-btns { display:flex; gap:12px; justify-content:center; }
+
+    /* ── Spinner ── */
+    .spinner { width:18px; height:18px; border:2px solid #ffffff30; border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* hidden */
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ── Login screen ──────────────────────────────────────────────────────────── -->
+<div id="loginPage">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="login-logo-mark">✦</span>
+        <div class="login-logo-name">NovaJS</div>
+        <div class="login-logo-sub">Admin Panel</div>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="loginErr" style="color:var(--danger);font-size:.85rem;margin-bottom:14px;display:none"></div>
+      <button class="btn btn-primary btn-full" id="loginBtn" onclick="doLogin()">
+        Sign In
+      </button>
+      <div style="margin-top:20px;text-align:center">
+        <a href="/" style="color:var(--muted);font-size:.85rem;text-decoration:none">← Back to Docs</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Admin dashboard ──────────────────────────────────────────────────────── -->
+<div id="adminPage" class="hidden">
+
+  <nav class="admin-nav">
+    <span class="admin-logo" style="font-weight:800;color:var(--accent);font-size:1rem;letter-spacing:.05em">✦ NovaJS</span>
+    <span class="admin-nav-badge">Admin</span>
+    <span class="admin-spacer"></span>
+    <span class="admin-user" id="adminUserLabel"></span>
+    <a href="/" class="admin-nav-link" style="margin-left:20px">View Docs ↗</a>
+    <button class="btn btn-outline btn-sm" style="margin-left:12px" onclick="logout()">Sign Out</button>
+  </nav>
+
+  <div class="dashboard">
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-val" id="statTotal">—</div><div class="stat-label">Total Docs</div></div>
+      <div class="stat-card"><div class="stat-val" id="statCats">—</div><div class="stat-label">Categories</div></div>
+    </div>
+
+    <div class="dash-grid">
+
+      <!-- ── Doc list ── -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Documentation Files</span>
+          <span id="docCountBadge" style="color:var(--muted);font-size:.8rem"></span>
+        </div>
+        <div id="docList" class="doc-list">
+          <div class="doc-list-empty">Loading…</div>
+        </div>
+      </div>
+
+      <!-- ── Upload form ── -->
+      <div class="card" style="position:sticky;top:24px">
+        <div class="card-header">
+          <span class="card-title">Upload New Doc</span>
+        </div>
+        <div class="card-body">
+
+          <div class="form-group">
+            <label>Title *</label>
+            <input type="text" id="docTitle" placeholder="e.g. Getting Started">
+          </div>
+
+          <div class="form-group">
+            <label>Category *</label>
+            <input type="text" id="docCategory" placeholder="e.g. Introduction" list="catList">
+            <datalist id="catList"></datalist>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="docDesc" placeholder="One-line summary shown in the sidebar tooltip…" rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Display Order</label>
+            <input type="number" id="docOrder" placeholder="1" min="1">
+          </div>
+
+          <div class="form-group">
+            <label>Markdown File (.md) *</label>
+            <div class="dropzone" id="dropzone">
+              <input type="file" id="fileInput" accept=".md" onchange="onFileSelected(this)">
+              <div class="dropzone-icon">📄</div>
+              <div class="dropzone-label">Drop your <span>.md file</span> here<br>or click to browse</div>
+              <div class="dropzone-file hidden" id="dropzoneFile"></div>
+            </div>
+          </div>
+
+          <div id="uploadErr" style="color:var(--danger);font-size:.85rem;margin-bottom:14px;display:none"></div>
+          <div id="uploadOk"  style="color:var(--success);font-size:.85rem;margin-bottom:14px;display:none"></div>
+
+          <button class="btn btn-primary btn-full" id="uploadBtn" onclick="uploadDoc()">
+            Upload Document
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete confirmation modal ── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3>Delete Document?</h3>
+    <p id="confirmMsg">This action cannot be undone. The Markdown file will be permanently deleted.</p>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast container ── -->
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+  let token    = localStorage.getItem('nova_token') || '';
+  let allDocs  = [];
+  let deleteId = null;
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  (async function boot() {
+    if (token) {
+      try {
+        const res = await fetch('/api/admin/verify', { headers: auth() });
+        if (res.ok) {
+          const d = await res.json();
+          showDashboard(d.admin.username);
+          return;
+        }
+      } catch {}
+      token = ''; localStorage.removeItem('nova_token');
+    }
+    // Show login
+    document.getElementById('loginPage').classList.remove('hidden');
+  })();
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  function auth() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
+
+  async function doLogin() {
+    const username = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPass').value;
+    const btn      = document.getElementById('loginBtn');
+    const err      = document.getElementById('loginErr');
+
+    if (!username || !password) { showErr(err, 'Enter username and password'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Signing in…';
+    err.style.display = 'none';
+
+    try {
+      const res  = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) { showErr(err, data.error || 'Login failed'); return; }
+
+      token = data.token;
+      localStorage.setItem('nova_token', token);
+      document.getElementById('loginPage').classList.add('hidden');
+      showDashboard(data.username);
+    } catch (e) {
+      showErr(err, 'Server error — is the server running?');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  function logout() {
+    token = ''; localStorage.removeItem('nova_token');
+    location.reload();
+  }
+
+  // ── Dashboard ─────────────────────────────────────────────────────────────
+  async function showDashboard(username) {
+    document.getElementById('adminPage').classList.remove('hidden');
+    document.getElementById('adminUserLabel').textContent = `👤 ${username}`;
+    await loadDocs();
+    await loadStats();
+  }
+
+  async function loadStats() {
+    try {
+      const res  = await fetch('/api/admin/stats', { headers: auth() });
+      const data = await res.json();
+      document.getElementById('statTotal').textContent = data.totalDocs;
+      document.getElementById('statCats').textContent  = data.categories;
+      // Populate category datalist
+      const dl = document.getElementById('catList');
+      dl.innerHTML = data.categoryList.map(c => `<option value="${esc(c)}">`).join('');
+    } catch {}
+  }
+
+  async function loadDocs() {
+    try {
+      const res  = await fetch('/api/docs');
+      const data = await res.json();
+      allDocs = (data.docs || []).sort((a,b) => (a.order||0) - (b.order||0));
+      renderDocList();
+    } catch {
+      document.getElementById('docList').innerHTML = '<div class="doc-list-empty">Failed to load docs</div>';
+    }
+  }
+
+  function renderDocList() {
+    const el = document.getElementById('docList');
+    document.getElementById('docCountBadge').textContent = `${allDocs.length} file${allDocs.length !== 1 ? 's' : ''}`;
+
+    if (!allDocs.length) {
+      el.innerHTML = '<div class="doc-list-empty">No docs yet — upload your first one →</div>';
+      return;
+    }
+
+    el.innerHTML = allDocs.map(doc => {
+      const date = new Date(doc.updatedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      return `
+      <div class="doc-item">
+        <div class="doc-item-info">
+          <div class="doc-item-title">${esc(doc.title)}</div>
+          <div class="doc-item-meta">Updated ${date}</div>
+        </div>
+        <span class="doc-item-badge">${esc(doc.category)}</span>
+        <button class="btn btn-danger btn-sm" onclick="askDelete('${doc.id}', '${esc(doc.title).replace(/'/g, "\\'")}')">Delete</button>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Upload ────────────────────────────────────────────────────────────────
+  let selectedFile = null;
+
+  function onFileSelected(input) {
+    const file = input.files[0];
+    if (!file) return;
+    selectedFile = file;
+    const lbl = document.getElementById('dropzoneFile');
+    lbl.textContent = `✓ ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+    lbl.classList.remove('hidden');
+  }
+
+  // Drag-and-drop
+  const dz = document.getElementById('dropzone');
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.md')) {
+      selectedFile = file;
+      document.getElementById('dropzoneFile').textContent = `✓ ${file.name}`;
+      document.getElementById('dropzoneFile').classList.remove('hidden');
+    } else {
+      toast('Only .md files allowed', 'error');
+    }
+  });
+
+  async function uploadDoc() {
+    const title    = document.getElementById('docTitle').value.trim();
+    const category = document.getElementById('docCategory').value.trim();
+    const desc     = document.getElementById('docDesc').value.trim();
+    const order    = document.getElementById('docOrder').value;
+    const errEl    = document.getElementById('uploadErr');
+    const okEl     = document.getElementById('uploadOk');
+    const btn      = document.getElementById('uploadBtn');
+
+    errEl.style.display = 'none';
+    okEl.style.display  = 'none';
+
+    if (!title)        { showErr(errEl, 'Title is required'); return; }
+    if (!category)     { showErr(errEl, 'Category is required'); return; }
+    if (!selectedFile) { showErr(errEl, 'Please select a .md file'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="border-top-color:#fff"></div> Uploading…';
+
+    const fd = new FormData();
+    fd.append('file',        selectedFile);
+    fd.append('title',       title);
+    fd.append('category',    category);
+    fd.append('description', desc);
+    fd.append('order',       order || allDocs.length + 1);
+
+    try {
+      const res  = await fetch('/api/docs', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd
+      });
+      const data = await res.json();
+
+      if (!res.ok) { showErr(errEl, data.error || 'Upload failed'); return; }
+
+      okEl.textContent  = `✓ "${data.doc.title}" uploaded successfully`;
+      okEl.style.display = 'block';
+      toast(`"${data.doc.title}" uploaded`, 'success');
+
+      // Reset form
+      document.getElementById('docTitle').value    = '';
+      document.getElementById('docCategory').value = '';
+      document.getElementById('docDesc').value      = '';
+      document.getElementById('docOrder').value     = '';
+      document.getElementById('fileInput').value    = '';
+      document.getElementById('dropzoneFile').classList.add('hidden');
+      selectedFile = null;
+
+      await loadDocs();
+      await loadStats();
+    } catch {
+      showErr(errEl, 'Network error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Upload Document';
+    }
+  }
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+  function askDelete(id, title) {
+    deleteId = id;
+    document.getElementById('confirmMsg').textContent = `Delete "${title}"? This cannot be undone.`;
+    document.getElementById('confirmModal').classList.add('show');
+  }
+  function closeModal() {
+    document.getElementById('confirmModal').classList.remove('show');
+    deleteId = null;
+  }
+  async function confirmDelete() {
+    if (!deleteId) return;
+    const btn = document.getElementById('confirmBtn');
+    btn.disabled = true; btn.textContent = 'Deleting…';
+    try {
+      const res = await fetch(`/api/docs/${deleteId}`, {
+        method: 'DELETE', headers: auth()
+      });
+      const data = await res.json();
+      if (!res.ok) { toast(data.error || 'Delete failed', 'error'); return; }
+      toast('Document deleted', 'success');
+      closeModal();
+      await loadDocs();
+      await loadStats();
+    } catch {
+      toast('Network error', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Delete';
+    }
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    const icon = type === 'success' ? '✅' : '❌';
+    const el   = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span class="toast-icon">${icon}</span><span>${esc(msg)}</span>`;
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
